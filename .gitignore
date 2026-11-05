@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.env
+
+# Piper voices: ~63 MB each. Download them instead:
+#   python -m piper.download_voices en_US-amy-medium --data-dir models
+models/
+
+# Regenerate with scripts/record_demo.py. The rendered video and its timeline
+# are committed (they are the evidence for the numbers in the README); the raw
+# call audio is not, since the video carries the same audio.
+demo/call.wav
