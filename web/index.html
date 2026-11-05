@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voice Agent — latency console</title>
+<link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<header>
+  <h1>voiceagent <span>— streaming STT → LLM → TTS</span></h1>
+  <div class="providers" id="providers">providers: <b>…</b></div>
+  <div class="spacer"></div>
+  <button id="call" class="primary">Start call</button>
+  <button id="hangup" class="danger" disabled>Hang up</button>
+</header>
+
+<main>
+  <section>
+    <h2>Call</h2>
+    <div class="statusbar">
+      <div class="pill" id="state">idle</div>
+      <div class="meter"><i id="level"></i></div>
+      <div class="latency-now">last response <b id="lastLatency">—</b></div>
+    </div>
+    <div id="log"><p class="empty">Press <strong>Start call</strong> and talk. Interrupt the agent mid-sentence to see barge-in cancel playback.</p></div>
+  </section>
+
+  <section>
+    <h2>Response latency — speech end → first audio out</h2>
+    <div class="legend">
+      <span><i style="background:#60a5fa"></i>stt finalize</span>
+      <span><i style="background:#fbbf24"></i>llm first token</span>
+      <span><i style="background:#c4b5fd"></i>tts first byte</span>
+      <span><i style="background:#5eead4"></i>playout dispatch</span>
+    </div>
+    <div id="turns"><p class="empty">No turns yet.</p></div>
+  </section>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
