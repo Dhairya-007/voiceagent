@@ -266,7 +266,7 @@ class Renderer:
                    font=font, fill=fill)
 
         centre(96, "voiceagent", self.f["h1"], TEXT)
-        centre(132, "one recorded call · every number measured, none drawn by hand",
+        centre(132, "one recorded call · every figure measured, none drawn by hand",
                self.f["small"], MUTED)
 
         stats = [
@@ -290,8 +290,8 @@ class Renderer:
             ("transport", "websocket · browser mic, and Twilio Media Streams "
                           "(8 kHz mu-law) for a real number"),
             ("stt", f"{p['stt']} — local, offline, free"),
-            ("llm", f"{p['llm']} — rule-based stub; swap in Ollama or any "
-                    "OpenAI-compatible endpoint"),
+            ("llm", f"{p['llm']} — deterministic responder; set LLM_BASE_URL "
+                    "for Ollama or any OpenAI-compatible model"),
             ("tts", f"{p['tts']} — streams, ~15 ms to first byte "
                     "(macOS `say` measured ~860 ms)"),
             ("turn taking", "energy VAD + hysteresis · barge-in cancels the turn "
@@ -326,8 +326,8 @@ class Renderer:
              ACCENT if p50 and p50 <= self.summary["target_ms"] else TEXT)
         cell(300, "WORST", f"{max(lat):.0f} ms" if lat else "—")
         cell(430, "BARGE-INS", str(barge), WARN if barge else TEXT)
-        note = ("all audio and latencies recorded from one live run · "
-                "free local stack · llm is a rule-based stub")
+        note = ("all figures measured from this recorded run · "
+                "faster-whisper + espeak-ng, local")
         d.text((W - 24 - d.textlength(note, font=self.f["tiny"]), y + 36), note,
                font=self.f["tiny"], fill=MUTED)
 

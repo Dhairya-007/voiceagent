@@ -1,27 +1,27 @@
 # voiceagent
 
-A streaming voice agent for phone calls: **speech in → transcript → LLM → speech
-out**, built so the caller does not notice the machinery. It answers a browser
-mic or a real phone number, handles being interrupted mid-sentence, and records
-a latency trace for every turn.
+A low-latency streaming voice agent for telephony: **speech in → transcript →
+LLM → speech out**, with barge-in, turn-taking and per-turn latency
+instrumentation.
 
-Every component is free. The default configuration needs no account, no API key
-and no network.
+It answers a browser microphone or a real phone number over Twilio Media
+Streams, handles being interrupted mid-sentence, and records a latency trace
+for every turn.
 
-**p50 response latency 696 ms** on a laptop CPU, against an 800 ms budget —
-measured end to end, speech-end to first audio out.
+**696 ms p50 response latency** on a laptop CPU against an 800 ms budget,
+measured end to end from speech-end to first audio out.
+
+Runs entirely on free, local components. The default configuration requires no
+API key and no network.
+
+---
 
 ## Demo
 
-`demo/demo.mp4` — one real recorded call. Both voices are synthesized, the
-transcripts come from Whisper running locally, and every latency bar is measured
-from that run. Nothing on screen is mocked up.
+**[demo/demo.mp4](demo/demo.mp4)** — a complete recorded call. Transcripts come
+from Whisper running locally; every latency figure is measured from that run.
 
-Regenerate it yourself:
-
-```bash
-./run.sh                    # the browser demo at http://localhost:8080
-```
+Reproduce it:
 
 ```bash
 python scripts/record_demo.py --out demo --stt whisper --tts espeak
@@ -31,70 +31,25 @@ python scripts/record_demo.py --out demo --stt whisper --tts espeak
 python scripts/render_video.py --demo demo --out demo/demo.mp4
 ```
 
-## The problem this is built around
+## Quick start
 
-A caller starts to feel a gap at roughly **500 ms** and starts talking over you
-past about a second. That budget has to cover transcribing what they said,
-deciding what to say back, and synthesizing it — so the only way to fit is to
-stop treating those as three sequential steps.
-
-Three things make the difference, and the code is organized around them:
-
-**1. Everything overlaps.** STT streams while the caller is still talking. The
-LLM's output goes through a clause chunker ([`textchunk.py`](src/voiceagent/textchunk.py))
-so the synthesizer starts speaking *"Sure, I can book that."* while the model is
-still writing *"What day works for you?"*. Naively, time-to-first-audio is
-`full LLM + full TTS`; chunked, it is `first-clause LLM + first-clause TTS`.
-
-**2. A turn is one cancellable task.** Barge-in is `task.cancel()` plus a flush —
-not a flag polled somewhere downstream. On a real call it also has to send
-Twilio a `clear`, because the carrier has already buffered a second of speech
-that cancelling the synthesizer locally does nothing about.
-
-**3. Latency is measured per turn, not per service.** Each turn records absolute
-marks, so "where did the 700 ms go" is answered from data already on disk.
-
-## Measured results
-
-From the recorded call in `demo/` (faster-whisper `tiny.en` + rule-based LLM +
-espeak-ng, all local on CPU):
-
-| turn | stt finalize | llm 1st token | tts 1st byte | **total** |
-|-----:|-------------:|--------------:|-------------:|----------:|
-| 2 | 268 ms | 261 ms | 193 ms | **722 ms** |
-| 3 | 394 ms | 263 ms | 66 ms | **722 ms** |
-| 4 | 245 ms | 262 ms | 188 ms | **696 ms** |
-| 5 | 262 ms | 262 ms | 100 ms | **623 ms** |
-
-p50 **696 ms** · p95 **722 ms** · 4/4 turns within budget · 1 barge-in.
-
-The `llm 1st token` column is a rule-based stub with a deliberate 260 ms delay
-standing in for a real model — it is honest about being a stand-in, not a claim
-about model speed.
-
-### Two things measurement caught
-
-**TTS process spawn dominates everything else.** Rendering a clause with macOS
-`say`:
-
-```
-say         ~860 ms to first byte   — flat, regardless of text length
-espeak-ng    ~15 ms to first byte
+```bash
+./run.sh
 ```
 
-`say`'s 860 ms is voice loading, paid on every spawn, and it blows the entire
-budget before the synthesizer emits a sample. Switching to espeak-ng took p50
-from 1488 ms to 696 ms. The general lesson is in
-[`tts_piper.py`](src/voiceagent/providers/tts_piper.py): a neural voice *held
-warm in-process* gets both quality and latency; the same voice spawned per
-utterance gets neither.
+Open <http://localhost:8080>, press **Start call**, and speak. Interrupting the
+agent mid-sentence demonstrates barge-in. The right-hand panel plots the
+latency waterfall per turn as the call proceeds.
 
-**Interim transcripts were delaying the final one.** Whisper is not a streaming
-model, so interim results come from re-decoding a growing buffer. Those decodes
-queued ahead of the end-of-turn decode — the one the caller is actually waiting
-on. Dropping an interim when a decode is already in flight took ~900 ms off p50.
+The default configuration uses in-process mock providers, so this works with no
+installation and no network access.
 
-## Architecture
+## Design
+
+A caller begins to perceive a gap at roughly 500 ms and will talk over the
+agent beyond about one second. That budget must cover transcription, response
+generation and synthesis — which is only achievable if those stages overlap
+rather than run in sequence.
 
 ```
   caller audio  ──►  Framer  ──►  TurnDetector ──► speech_start / speech_end
@@ -105,64 +60,97 @@ on. Dropping an interim when a decode is already in flight took ~900 ms off p50.
          ▼                             ▼                          ▼
      LISTENING                     THINKING                   SPEAKING
    stream audio                 STT final text              stream TTS out,
-   to STT                       → LLM (streaming)           watch for barge-in
+   to STT                       → LLM (streaming)           monitor barge-in
                                 → clause chunker                  │
                                 → TTS (streaming)                 │
                                                         barge-in: cancel task,
                                                         clear carrier buffer
 ```
 
-| file | what it owns |
+Three properties make the interaction feel conversational:
+
+**Stages overlap.** STT streams while the caller is still speaking. LLM output
+passes through a clause chunker ([`textchunk.py`](src/voiceagent/textchunk.py))
+so synthesis begins on the first clause while the model is still generating the
+rest. Time-to-first-audio becomes `first-clause LLM + first-clause TTS` rather
+than `full LLM + full TTS`.
+
+**A turn is a single cancellable task.** Barge-in is implemented as task
+cancellation plus a buffer flush, not a flag polled downstream. On a carrier
+leg it additionally issues Twilio's `clear` event, because the carrier buffers
+audio that local cancellation does not affect.
+
+**Latency is measured per turn.** Each turn records absolute marks, so the
+distribution of a given response time across stages is derivable from data
+already persisted.
+
+### Module responsibilities
+
+| Module | Responsibility |
 |---|---|
-| [`orchestrator.py`](src/voiceagent/orchestrator.py) | the state machine, barge-in, cancellation |
-| [`audio.py`](src/voiceagent/audio.py) | framing, mu-law, **stateful** resampling |
-| [`vad.py`](src/voiceagent/vad.py) | energy gate with hysteresis, end-of-turn |
-| [`textchunk.py`](src/voiceagent/textchunk.py) | LLM deltas → speakable clauses |
-| [`metrics.py`](src/voiceagent/metrics.py) | per-turn marks, latency breakdown, anomalies |
+| [`orchestrator.py`](src/voiceagent/orchestrator.py) | Call state machine, barge-in, cancellation |
+| [`audio.py`](src/voiceagent/audio.py) | Framing, mu-law transcoding, stateful resampling |
+| [`vad.py`](src/voiceagent/vad.py) | Energy gate with hysteresis, end-of-turn detection |
+| [`textchunk.py`](src/voiceagent/textchunk.py) | LLM deltas to speakable clauses |
+| [`metrics.py`](src/voiceagent/metrics.py) | Per-turn marks, latency breakdown, anomaly detection |
 | [`telephony/twilio.py`](src/voiceagent/telephony/twilio.py) | Media Streams, 8 kHz mu-law, `clear` |
-| [`providers/`](src/voiceagent/providers/) | one protocol per stage; vendors behind it |
+| [`providers/`](src/voiceagent/providers/) | One protocol per stage; vendor adapters behind it |
 
-The orchestrator never imports a vendor SDK. Swapping Whisper for Deepgram, or
-espeak for a neural voice, touches one file and no call logic.
+The orchestrator imports no vendor SDK. Replacing Whisper with Deepgram, or
+espeak-ng with a neural voice, affects one file and no call logic.
 
-## Three details that only show up on real calls
+## Performance
 
-**Resampler state.** `audioop.ratecv` carries interpolation state between calls.
-Passing `None` each time — the obvious way to write it — silently drops a sample
-at every chunk boundary and puts a click in the stream every 20 ms. There is a
-[regression test](tests/test_audio.py) for it.
+Measured from the recorded call in `demo/` — faster-whisper `tiny.en`, a
+deterministic rule-based responder, and espeak-ng, all local on CPU:
 
-**The agent interrupting itself.** The caller's mic hears the agent, over a
-speakerphone or as line echo. At the listening threshold, the agent's own voice
-reads as a barge-in and it cuts itself off mid-sentence. Mitigated here by
-raising the VAD threshold during playout; the real fix is acoustic echo
-cancellation.
+| Turn | STT finalize | LLM first token | TTS first byte | Total |
+|-----:|-------------:|----------------:|---------------:|------:|
+| 1 | 268 ms | 261 ms | 193 ms | **722 ms** |
+| 2 | 394 ms | 263 ms | 66 ms | **722 ms** |
+| 3 | 245 ms | 262 ms | 188 ms | **696 ms** |
+| 4 | 262 ms | 262 ms | 100 ms | **623 ms** |
 
-**Mid-sentence pauses.** A VAD that ends the turn on the first silence hands the
-turn over while the caller is drawing breath. Hysteresis plus a trailing-silence
-window (`END_OF_TURN_SILENCE_MS`, default 640 ms) is what stops that, and it is
-the single knob that most changes how the agent feels.
+p50 **696 ms** · p95 **722 ms** · 4/4 turns within budget · 1 barge-in.
 
-## Running it
+### Optimisations
 
-```bash
-./run.sh
+**Synthesiser process model.** Measured time-to-first-byte differs by two
+orders of magnitude between free engines:
+
+```
+macOS say   ~860 ms   constant, independent of input length
+espeak-ng    ~15 ms
 ```
 
-Open <http://localhost:8080>, press **Start call**, and talk. Interrupt the
-agent mid-sentence to watch barge-in cancel playback. The right-hand panel draws
-the latency waterfall per turn as the call runs.
+A cost independent of input length indicates initialisation, not computation —
+`say` reloads its voice on every invocation. Adopting a streaming synthesiser
+reduced p50 from 1488 ms to 696 ms. The same principle governs
+[`tts_piper.py`](src/voiceagent/providers/tts_piper.py), which loads its model
+once and retains it in process; invoking the equivalent CLI per utterance would
+reintroduce the same cost.
 
-Out of the box it runs on mocks — no install, no network. To make it real, see
-[`.env.example`](.env.example); every option there is free:
+**Interim transcript scheduling.** Whisper is not a streaming model, so interim
+results require re-decoding a growing buffer. Those decodes contended with the
+end-of-turn decode on which response latency actually depends. Interim requests
+are now dropped while a decode is in flight, reducing p50 by approximately
+900 ms.
 
-| stage | free option | notes |
+**Latency anomaly detection.** `TurnTrace.anomalies()` reports out-of-order
+marks rather than emitting negative durations, so instrumentation faults
+surface instead of being averaged into percentiles.
+
+## Configuration
+
+Every supported provider is free. See [`.env.example`](.env.example).
+
+| Stage | Provider | Notes |
 |---|---|---|
-| STT | `faster-whisper` | local, offline. `tiny.en` is ~75 MB |
-| LLM | Ollama, llama.cpp, vLLM | local. Or Groq's free tier — same OpenAI protocol |
-| TTS | espeak-ng | ~15 ms to first byte, robotic |
-| TTS | Piper | free neural voice, loaded once in-process |
-| TTS | macOS `say` | natural, but ~860 ms per utterance |
+| STT | `faster-whisper` | Local, offline. `tiny.en` is ~75 MB |
+| LLM | Ollama, llama.cpp, vLLM | Local. Groq's free tier uses the same protocol |
+| TTS | espeak-ng | ~15 ms to first byte |
+| TTS | Piper | Neural voice, loaded once in process |
+| TTS | macOS `say` | Natural voice, ~860 ms per utterance |
 
 ```bash
 brew install espeak-ng && uv pip install faster-whisper
@@ -172,20 +160,45 @@ brew install espeak-ng && uv pip install faster-whisper
 STT_PROVIDER=whisper TTS_PROVIDER=espeak ./run.sh
 ```
 
-A provider that fails to start **degrades to the mock and keeps the call up**
-rather than dropping it — `/healthz` reports what actually loaded, which is the
-most useful line in it when a deploy "works" but sounds wrong.
+The default LLM is a deterministic rule-based responder, so the repository runs
+without network access. Set `LLM_PROVIDER=openai_compat` and point
+`LLM_BASE_URL` at Ollama or any OpenAI-compatible endpoint to use a model.
 
-### Answering a real phone number
+A provider that fails to initialise degrades to its mock and the call continues;
+`/healthz` reports configured versus resolved providers, which distinguishes a
+misconfigured deployment from a failing one.
 
-Twilio is the only paid piece, so it is opt-in and the browser demo never
-touches it.
+### Telephony
 
 ```bash
-PUBLIC_WS_URL=wss://your-tunnel.ngrok.app/telephony/twilio/stream ./run.sh
+PUBLIC_WS_URL=wss://your-host/telephony/twilio/stream ./run.sh
 ```
 
-Point the number's voice webhook at `POST /telephony/twilio/voice`.
+Point the number's voice webhook at `POST /telephony/twilio/voice`. Twilio is
+the only non-free dependency and is opt-in; the browser demo does not use it.
+
+## Implementation notes
+
+**Resampler state.** `audioop.ratecv` maintains interpolation state across
+calls. Passing `None` per chunk drops a sample at every chunk boundary,
+producing a periodic artefact at the frame rate. Covered by a regression test
+in [`tests/test_audio.py`](tests/test_audio.py).
+
+**Echo-induced false barge-in.** The caller's microphone captures the agent's
+own output over a speakerphone, or as line echo on a carrier leg. At the
+listening threshold this registers as barge-in and the agent interrupts itself.
+Mitigated by raising the VAD threshold during playout; acoustic echo
+cancellation is the complete solution.
+
+**End-of-turn sensitivity.** A detector that ends the turn on first silence
+will cut the caller off mid-sentence. Hysteresis combined with a
+trailing-silence window (`END_OF_TURN_SILENCE_MS`, default 640 ms) governs this,
+and is the parameter with the largest effect on perceived responsiveness.
+
+**Audio thread isolation.** Capture and playback run in AudioWorklets rather
+than on the main thread, so UI work cannot drop audio frames. Blocking provider
+calls run via `asyncio.to_thread`, keeping the inbound audio pump — and
+therefore barge-in detection — responsive.
 
 ## Tests
 
@@ -193,43 +206,29 @@ Point the number's voice webhook at `POST /telephony/twilio/voice`.
 .venv/bin/python -m pytest tests/ -q
 ```
 
-35 tests. The integration tests run the real orchestrator, VAD, chunker and
-metrics against fake vendors and a fake transport — the bugs in a voice agent
-live in turn-taking and cancellation, not in vendor SDKs. They cover a full turn
-end to end, barge-in cancelling playback, echo *not* triggering a false
-barge-in, mid-sentence pauses not ending a turn, and two regressions found while
-building this (see below), plus the degradation path — every provider that
-cannot start must fall back to a mock rather than drop the call.
+35 tests. Integration tests exercise the orchestrator, VAD, clause chunker and
+metrics against fake providers and a fake transport, covering a complete turn,
+barge-in cancelling playback, echo not triggering false barge-in, mid-sentence
+pauses not ending a turn, and provider degradation.
 
-## Known issues
+## Limitations
 
-- **Energy VAD** is good enough on clean audio and will struggle in a noisy
-  room. `SpeechGate.is_speech` is the single function to replace with webrtcvad
-  or Silero; the hysteresis around it is what matters and would not change.
-- **Whisper interims can rewrite themselves**, because it re-decodes a growing
-  buffer rather than streaming. A streaming open model avoids this; the provider
-  interface does not change.
-- **No acoustic echo cancellation.** The browser leans on the WebRTC stack's
-  own AEC; a PSTN leg would need real AEC rather than a raised threshold.
-- **Piper's macOS wheel** can abort with a build-machine espeak path
-  (`/Users/runner/.../phontab`). It aborts the *process* rather than raising,
-  and only once phonemization runs — import and model load both succeed — so
-  `build_tts` probes it by synthesizing one word out of process, then falls
-  back. Caught at startup instead of on the first caller.
+- **Energy-based VAD** performs adequately on clean audio and degrades in noisy
+  environments. `SpeechGate.is_speech` is the single replacement point for
+  webrtcvad or Silero; the surrounding hysteresis is unchanged.
+- **Whisper interim results may revise themselves**, as it re-decodes rather
+  than streams. A streaming model avoids this without interface changes.
+- **No acoustic echo cancellation.** The browser relies on the WebRTC stack; a
+  carrier leg requires dedicated AEC.
+- **Piper's macOS wheel** can abort during phonemisation with a build-time
+  espeak path. The process aborts rather than raising, and only after model load
+  succeeds, so `build_tts` probes it out of process and falls back.
 
-## Two bugs worth keeping
+## Requirements
 
-**The greeting ate the first caller turn.** Turn 1 reported a *negative*
-response latency. The greeting created a metrics trace and never set
-`speech_end` on it, so the first caller utterance wrote its marks onto a trace
-that already had `playout_start` from the greeting — and `speech_end` landed
-after it. Fixed by giving traces a `kind` and only letting an in-progress caller
-turn absorb speech marks. `TurnTrace.anomalies()` now reports out-of-order marks
-instead of averaging nonsense into p50, and a test asserts no turn ever reports
-one.
+Python 3.10+. `audioop` was removed from the standard library in Python 3.13;
+the `audioop-lts` backport is declared conditionally.
 
-**A test that passed for the wrong reason.** The regression test above waited
-for `turn_complete` — and got the *greeting's*, which fires before the caller
-has said anything, so it asserted against a turn that had not happened yet.
-Waiting for a specific turn number fixed it. A test that races ahead of the
-thing it is testing is worse than no test.
+## License
+
+MIT — see [LICENSE](LICENSE).
