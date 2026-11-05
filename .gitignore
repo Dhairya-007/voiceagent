@@ -4,6 +4,9 @@ __pycache__/
 .pytest_cache/
 .env
 
+# macOS
+.DS_Store
+
 # Piper voices: ~63 MB each. Download them instead:
 #   python -m piper.download_voices en_US-amy-medium --data-dir models
 models/
