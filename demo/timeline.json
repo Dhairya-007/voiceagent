@@ -1,0 +1,887 @@
+{
+  "call": {
+    "summary": {
+      "call_id": "demo",
+      "turns": 5,
+      "caller_turns": 4,
+      "anomalies": [],
+      "barge_ins": 1,
+      "response_latency_ms": {
+        "p50": 695.8,
+        "p95": 722.1,
+        "max": 722.1,
+        "mean": 690.8
+      },
+      "target_ms": 800.0,
+      "within_budget": 4
+    },
+    "turns": [
+      {
+        "turn": 1,
+        "kind": "greeting",
+        "marks": {
+          "tts_first_byte": 0.0,
+          "playout_start": 0.0,
+          "playout_end": 2989.7
+        },
+        "transcript": "",
+        "reply": "Thanks for calling the clinic. How can I help?",
+        "barged_in": false,
+        "providers": {
+          "stt": "faster-whisper",
+          "llm": "mock-llm",
+          "tts": "espeak-ng"
+        },
+        "audio_ms": 3188.1875,
+        "t0": 6473466.110375,
+        "response_latency_ms": null,
+        "breakdown": {
+          "stt_finalize": null,
+          "llm_ttft": null,
+          "tts_ttfb": null,
+          "playout_dispatch": 0.0
+        },
+        "anomalies": [],
+        "within_budget": null
+      },
+      {
+        "turn": 2,
+        "kind": "caller",
+        "marks": {
+          "speech_start": 0.0,
+          "stt_partial": 541.0,
+          "speech_end": 7451.4,
+          "stt_final": 7719.3,
+          "llm_first_token": 7980.2,
+          "tts_first_byte": 8173.1,
+          "playout_start": 8173.2,
+          "llm_done": 11327.8,
+          "playout_end": 11327.9
+        },
+        "transcript": "Hi, I want a book a cleaning for next week.",
+        "reply": "Sure, I can book that. What day works for you?",
+        "barged_in": false,
+        "providers": {
+          "stt": "faster-whisper",
+          "llm": "mock-llm",
+          "tts": "espeak-ng"
+        },
+        "audio_ms": 3324.1875,
+        "t0": 6477391.5200000005,
+        "response_latency_ms": 721.8,
+        "breakdown": {
+          "stt_finalize": 267.9,
+          "llm_ttft": 260.9,
+          "tts_ttfb": 193.0,
+          "playout_dispatch": 0.0
+        },
+        "anomalies": [],
+        "within_budget": true
+      },
+      {
+        "turn": 3,
+        "kind": "caller",
+        "marks": {
+          "speech_start": 0.0,
+          "stt_partial": 508.0,
+          "speech_end": 4156.2,
+          "stt_final": 4549.8,
+          "llm_first_token": 4812.6,
+          "tts_first_byte": 4878.4,
+          "playout_start": 4878.4,
+          "barge_in": 6110.1
+        },
+        "transcript": "Tuesday morning works, around 10.",
+        "reply": "Got it. I have that slot open. [interrupted]",
+        "barged_in": true,
+        "providers": {
+          "stt": "faster-whisper",
+          "llm": "mock-llm",
+          "tts": "espeak-ng"
+        },
+        "audio_ms": 1434.8125,
+        "t0": 6489499.969833001,
+        "response_latency_ms": 722.1,
+        "breakdown": {
+          "stt_finalize": 393.6,
+          "llm_ttft": 262.8,
+          "tts_ttfb": 65.7,
+          "playout_dispatch": 0.0
+        },
+        "anomalies": [],
+        "within_budget": true
+      },
+      {
+        "turn": 4,
+        "kind": "caller",
+        "marks": {
+          "speech_start": 0.0,
+          "stt_partial": 738.6,
+          "speech_end": 2701.7,
+          "stt_final": 2946.6,
+          "llm_first_token": 3209.0,
+          "tts_first_byte": 3397.5,
+          "playout_start": 3397.5,
+          "llm_done": 6430.3,
+          "playout_end": 6430.4
+        },
+        "transcript": "Can you make it 11 instead?",
+        "reply": "No problem, I have moved it. Anything else?",
+        "barged_in": false,
+        "providers": {
+          "stt": "faster-whisper",
+          "llm": "mock-llm",
+          "tts": "espeak-ng"
+        },
+        "audio_ms": 3201.875,
+        "t0": 6501718.394,
+        "response_latency_ms": 695.8,
+        "breakdown": {
+          "stt_finalize": 244.8,
+          "llm_ttft": 262.4,
+          "tts_ttfb": 188.5,
+          "playout_dispatch": 0.0
+        },
+        "anomalies": [],
+        "within_budget": true
+      },
+      {
+        "turn": 5,
+        "kind": "caller",
+        "marks": {
+          "speech_start": 0.0,
+          "stt_partial": 503.7,
+          "speech_end": 3687.1,
+          "stt_final": 3949.1,
+          "llm_first_token": 4210.8,
+          "tts_first_byte": 4310.4,
+          "playout_start": 4310.4,
+          "llm_done": 7323.6,
+          "playout_end": 7323.7
+        },
+        "transcript": "No, that's all. Thank you.",
+        "reply": "Happy to help. See you then. Goodbye.",
+        "barged_in": false,
+        "providers": {
+          "stt": "faster-whisper",
+          "llm": "mock-llm",
+          "tts": "espeak-ng"
+        },
+        "audio_ms": 3182.375,
+        "t0": 6508918.3365,
+        "response_latency_ms": 623.3,
+        "breakdown": {
+          "stt_finalize": 262.0,
+          "llm_ttft": 261.7,
+          "tts_ttfb": 99.5,
+          "playout_dispatch": 0.0
+        },
+        "anomalies": [],
+        "within_budget": true
+      }
+    ]
+  },
+  "providers": {
+    "stt": "faster-whisper",
+    "llm": "mock-llm",
+    "tts": "espeak-ng"
+  },
+  "events": [
+    {
+      "t": 4.523,
+      "type": "call_started",
+      "call_id": "demo",
+      "state": "listening",
+      "providers": {
+        "stt": "faster-whisper",
+        "llm": "mock-llm",
+        "tts": "espeak-ng"
+      }
+    },
+    {
+      "t": 4.523,
+      "type": "agent_text",
+      "call_id": "demo",
+      "state": "speaking",
+      "text": "Thanks for calling the clinic. How can I help?",
+      "turn": 1
+    },
+    {
+      "t": 4.583,
+      "type": "playout_start",
+      "call_id": "demo",
+      "state": "speaking",
+      "turn": 1
+    },
+    {
+      "t": 7.573,
+      "type": "playout_end",
+      "call_id": "demo",
+      "state": "speaking",
+      "turn": 1,
+      "audio_ms": 3188.2
+    },
+    {
+      "t": 7.573,
+      "type": "turn_complete",
+      "call_id": "demo",
+      "state": "listening",
+      "turn": 1,
+      "trace": {
+        "turn": 1,
+        "kind": "greeting",
+        "marks": {
+          "tts_first_byte": 0.0,
+          "playout_start": 0.0,
+          "playout_end": 2989.7
+        },
+        "transcript": "",
+        "reply": "Thanks for calling the clinic. How can I help?",
+        "barged_in": false,
+        "providers": {
+          "stt": "faster-whisper",
+          "llm": "mock-llm",
+          "tts": "espeak-ng"
+        },
+        "audio_ms": 3188.1875,
+        "t0": 6473466.110375,
+        "response_latency_ms": null,
+        "breakdown": {
+          "stt_finalize": null,
+          "llm_ttft": null,
+          "tts_ttfb": null,
+          "playout_dispatch": 0.0
+        },
+        "anomalies": [],
+        "within_budget": null
+      }
+    },
+    {
+      "t": 8.508,
+      "type": "speech_start",
+      "call_id": "demo",
+      "state": "listening",
+      "turn": 2
+    },
+    {
+      "t": 9.049,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Hi.",
+      "final": false,
+      "turn": 2
+    },
+    {
+      "t": 12.519,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Hi. Hi. Hi. What is this? Hi. Hi. Hi. Hi. Hi. Hi.",
+      "final": false,
+      "turn": 2
+    },
+    {
+      "t": 12.827,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Hi, I want to...",
+      "final": false,
+      "turn": 2
+    },
+    {
+      "t": 13.715,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Hi, I want a book a clip.",
+      "final": false,
+      "turn": 2
+    },
+    {
+      "t": 14.638,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Hi, I want a book a cleaning phone next.",
+      "final": false,
+      "turn": 2
+    },
+    {
+      "t": 15.564,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Hi, I want a book a cleaning for next week.",
+      "final": false,
+      "turn": 2
+    },
+    {
+      "t": 15.96,
+      "type": "speech_end",
+      "call_id": "demo",
+      "state": "thinking",
+      "turn": 2
+    },
+    {
+      "t": 16.228,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "thinking",
+      "text": "Hi, I want a book a cleaning for next week.",
+      "final": true,
+      "turn": 2,
+      "confidence": 0.9
+    },
+    {
+      "t": 16.608,
+      "type": "agent_text",
+      "call_id": "demo",
+      "state": "speaking",
+      "text": "Sure, I can book that.",
+      "turn": 2
+    },
+    {
+      "t": 16.682,
+      "type": "playout_start",
+      "call_id": "demo",
+      "state": "speaking",
+      "turn": 2
+    },
+    {
+      "t": 18.456,
+      "type": "agent_text",
+      "call_id": "demo",
+      "state": "speaking",
+      "text": "What day works for you?",
+      "turn": 2
+    },
+    {
+      "t": 19.836,
+      "type": "playout_end",
+      "call_id": "demo",
+      "state": "speaking",
+      "turn": 2,
+      "audio_ms": 3324.2
+    },
+    {
+      "t": 19.837,
+      "type": "turn_complete",
+      "call_id": "demo",
+      "state": "listening",
+      "turn": 2,
+      "trace": {
+        "turn": 2,
+        "kind": "caller",
+        "marks": {
+          "speech_start": 0.0,
+          "stt_partial": 541.0,
+          "speech_end": 7451.4,
+          "stt_final": 7719.3,
+          "llm_first_token": 7980.2,
+          "tts_first_byte": 8173.1,
+          "playout_start": 8173.2,
+          "llm_done": 11327.8,
+          "playout_end": 11327.9
+        },
+        "transcript": "Hi, I want a book a cleaning for next week.",
+        "reply": "Sure, I can book that. What day works for you?",
+        "barged_in": false,
+        "providers": {
+          "stt": "faster-whisper",
+          "llm": "mock-llm",
+          "tts": "espeak-ng"
+        },
+        "audio_ms": 3324.1875,
+        "t0": 6477391.5200000005,
+        "response_latency_ms": 721.8,
+        "breakdown": {
+          "stt_finalize": 267.9,
+          "llm_ttft": 260.9,
+          "tts_ttfb": 193.0,
+          "playout_dispatch": 0.0
+        },
+        "anomalies": [],
+        "within_budget": true
+      }
+    },
+    {
+      "t": 20.617,
+      "type": "speech_start",
+      "call_id": "demo",
+      "state": "listening",
+      "turn": 3
+    },
+    {
+      "t": 21.125,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Tuesday.",
+      "final": false,
+      "turn": 3
+    },
+    {
+      "t": 22.015,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Tuesday morning work.",
+      "final": false,
+      "turn": 3
+    },
+    {
+      "t": 22.938,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Tuesday morning works.",
+      "final": false,
+      "turn": 3
+    },
+    {
+      "t": 23.846,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Tuesday morning works, around 10.",
+      "final": false,
+      "turn": 3
+    },
+    {
+      "t": 24.773,
+      "type": "speech_end",
+      "call_id": "demo",
+      "state": "thinking",
+      "turn": 3
+    },
+    {
+      "t": 24.773,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "thinking",
+      "text": "Tuesday morning works, around 10.",
+      "final": false,
+      "turn": 3
+    },
+    {
+      "t": 25.167,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "thinking",
+      "text": "Tuesday morning works, around 10.",
+      "final": true,
+      "turn": 3,
+      "confidence": 0.9
+    },
+    {
+      "t": 25.46,
+      "type": "agent_text",
+      "call_id": "demo",
+      "state": "speaking",
+      "text": "Got it.",
+      "turn": 3
+    },
+    {
+      "t": 25.495,
+      "type": "playout_start",
+      "call_id": "demo",
+      "state": "speaking",
+      "turn": 3
+    },
+    {
+      "t": 26.231,
+      "type": "agent_text",
+      "call_id": "demo",
+      "state": "speaking",
+      "text": "I have that slot open.",
+      "turn": 3
+    },
+    {
+      "t": 26.727,
+      "type": "turn_complete",
+      "call_id": "demo",
+      "state": "listening",
+      "turn": 3,
+      "trace": {
+        "turn": 3,
+        "kind": "caller",
+        "marks": {
+          "speech_start": 0.0,
+          "stt_partial": 508.0,
+          "speech_end": 4156.2,
+          "stt_final": 4549.8,
+          "llm_first_token": 4812.6,
+          "tts_first_byte": 4878.4,
+          "playout_start": 4878.4,
+          "barge_in": 6110.1
+        },
+        "transcript": "Tuesday morning works, around 10.",
+        "reply": "Got it. I have that slot open. [interrupted]",
+        "barged_in": true,
+        "providers": {
+          "stt": "faster-whisper",
+          "llm": "mock-llm",
+          "tts": "espeak-ng"
+        },
+        "audio_ms": 1434.8125,
+        "t0": 6489499.969833001,
+        "response_latency_ms": 722.1,
+        "breakdown": {
+          "stt_finalize": 393.6,
+          "llm_ttft": 262.8,
+          "tts_ttfb": 65.7,
+          "playout_dispatch": 0.0
+        },
+        "anomalies": [],
+        "within_budget": true
+      }
+    },
+    {
+      "t": 26.727,
+      "type": "transport_clear"
+    },
+    {
+      "t": 26.727,
+      "type": "barge_in",
+      "call_id": "demo",
+      "state": "listening",
+      "turn": 3
+    },
+    {
+      "t": 28.425,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Okay.",
+      "final": false,
+      "turn": 3
+    },
+    {
+      "t": 29.809,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Okay.",
+      "final": false,
+      "turn": 3
+    },
+    {
+      "t": 31.084,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Okay.",
+      "final": false,
+      "turn": 3
+    },
+    {
+      "t": 32.419,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Thank you.",
+      "final": false,
+      "turn": 3
+    },
+    {
+      "t": 32.703,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Okay.",
+      "final": false,
+      "turn": 3
+    },
+    {
+      "t": 32.835,
+      "type": "speech_start",
+      "call_id": "demo",
+      "state": "listening",
+      "turn": 4
+    },
+    {
+      "t": 33.574,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Can you make it a",
+      "final": false,
+      "turn": 4
+    },
+    {
+      "t": 34.519,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Can you make it 11 instead?",
+      "final": false,
+      "turn": 4
+    },
+    {
+      "t": 35.428,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "Can you make it 11 instead?",
+      "final": false,
+      "turn": 4
+    },
+    {
+      "t": 35.537,
+      "type": "speech_end",
+      "call_id": "demo",
+      "state": "thinking",
+      "turn": 4
+    },
+    {
+      "t": 35.782,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "thinking",
+      "text": "Can you make it 11 instead?",
+      "final": true,
+      "turn": 4,
+      "confidence": 0.9
+    },
+    {
+      "t": 36.193,
+      "type": "agent_text",
+      "call_id": "demo",
+      "state": "speaking",
+      "text": "No problem, I have moved it.",
+      "turn": 4
+    },
+    {
+      "t": 36.233,
+      "type": "playout_start",
+      "call_id": "demo",
+      "state": "speaking",
+      "turn": 4
+    },
+    {
+      "t": 38.171,
+      "type": "agent_text",
+      "call_id": "demo",
+      "state": "speaking",
+      "text": "Anything else?",
+      "turn": 4
+    },
+    {
+      "t": 39.266,
+      "type": "playout_end",
+      "call_id": "demo",
+      "state": "speaking",
+      "turn": 4,
+      "audio_ms": 3201.9
+    },
+    {
+      "t": 39.266,
+      "type": "turn_complete",
+      "call_id": "demo",
+      "state": "listening",
+      "turn": 4,
+      "trace": {
+        "turn": 4,
+        "kind": "caller",
+        "marks": {
+          "speech_start": 0.0,
+          "stt_partial": 738.6,
+          "speech_end": 2701.7,
+          "stt_final": 2946.6,
+          "llm_first_token": 3209.0,
+          "tts_first_byte": 3397.5,
+          "playout_start": 3397.5,
+          "llm_done": 6430.3,
+          "playout_end": 6430.4
+        },
+        "transcript": "Can you make it 11 instead?",
+        "reply": "No problem, I have moved it. Anything else?",
+        "barged_in": false,
+        "providers": {
+          "stt": "faster-whisper",
+          "llm": "mock-llm",
+          "tts": "espeak-ng"
+        },
+        "audio_ms": 3201.875,
+        "t0": 6501718.394,
+        "response_latency_ms": 695.8,
+        "breakdown": {
+          "stt_finalize": 244.8,
+          "llm_ttft": 262.4,
+          "tts_ttfb": 188.5,
+          "playout_dispatch": 0.0
+        },
+        "anomalies": [],
+        "within_budget": true
+      }
+    },
+    {
+      "t": 40.035,
+      "type": "speech_start",
+      "call_id": "demo",
+      "state": "listening",
+      "turn": 5
+    },
+    {
+      "t": 40.539,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "No.",
+      "final": false,
+      "turn": 5
+    },
+    {
+      "t": 41.457,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "No, that's all.",
+      "final": false,
+      "turn": 5
+    },
+    {
+      "t": 42.418,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "No, that's all. Thanks.",
+      "final": false,
+      "turn": 5
+    },
+    {
+      "t": 43.304,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "listening",
+      "text": "No, that's all. Thank you.",
+      "final": false,
+      "turn": 5
+    },
+    {
+      "t": 43.722,
+      "type": "speech_end",
+      "call_id": "demo",
+      "state": "thinking",
+      "turn": 5
+    },
+    {
+      "t": 43.984,
+      "type": "transcript",
+      "call_id": "demo",
+      "state": "thinking",
+      "text": "No, that's all. Thank you.",
+      "final": true,
+      "turn": 5,
+      "confidence": 0.9
+    },
+    {
+      "t": 44.306,
+      "type": "agent_text",
+      "call_id": "demo",
+      "state": "speaking",
+      "text": "Happy to help.",
+      "turn": 5
+    },
+    {
+      "t": 44.346,
+      "type": "playout_start",
+      "call_id": "demo",
+      "state": "speaking",
+      "turn": 5
+    },
+    {
+      "t": 45.49,
+      "type": "agent_text",
+      "call_id": "demo",
+      "state": "speaking",
+      "text": "See you then.",
+      "turn": 5
+    },
+    {
+      "t": 46.497,
+      "type": "agent_text",
+      "call_id": "demo",
+      "state": "speaking",
+      "text": "Goodbye.",
+      "turn": 5
+    },
+    {
+      "t": 47.359,
+      "type": "playout_end",
+      "call_id": "demo",
+      "state": "speaking",
+      "turn": 5,
+      "audio_ms": 3182.4
+    },
+    {
+      "t": 47.359,
+      "type": "turn_complete",
+      "call_id": "demo",
+      "state": "listening",
+      "turn": 5,
+      "trace": {
+        "turn": 5,
+        "kind": "caller",
+        "marks": {
+          "speech_start": 0.0,
+          "stt_partial": 503.7,
+          "speech_end": 3687.1,
+          "stt_final": 3949.1,
+          "llm_first_token": 4210.8,
+          "tts_first_byte": 4310.4,
+          "playout_start": 4310.4,
+          "llm_done": 7323.6,
+          "playout_end": 7323.7
+        },
+        "transcript": "No, that's all. Thank you.",
+        "reply": "Happy to help. See you then. Goodbye.",
+        "barged_in": false,
+        "providers": {
+          "stt": "faster-whisper",
+          "llm": "mock-llm",
+          "tts": "espeak-ng"
+        },
+        "audio_ms": 3182.375,
+        "t0": 6508918.3365,
+        "response_latency_ms": 623.3,
+        "breakdown": {
+          "stt_finalize": 262.0,
+          "llm_ttft": 261.7,
+          "tts_ttfb": 99.5,
+          "playout_dispatch": 0.0
+        },
+        "anomalies": [],
+        "within_budget": true
+      }
+    },
+    {
+      "t": 47.98,
+      "type": "call_ended",
+      "call_id": "demo",
+      "state": "listening",
+      "summary": {
+        "call_id": "demo",
+        "turns": 5,
+        "caller_turns": 4,
+        "anomalies": [],
+        "barge_ins": 1,
+        "response_latency_ms": {
+          "p50": 695.8,
+          "p95": 722.1,
+          "max": 722.1,
+          "mean": 690.8
+        },
+        "target_ms": 800.0,
+        "within_budget": 4
+      }
+    }
+  ],
+  "duration_s": 47.53,
+  "voices": {
+    "caller": "Daniel",
+    "agent": "Samantha"
+  }
+}
